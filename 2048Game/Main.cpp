@@ -1,22 +1,37 @@
 #include <iostream>
-#include "GameGrid.h"
+#include "./GameGrid.h"
 using namespace std;
-void Move(GameGrid *game);
+
+bool TryToMove(GameGrid *game);
+
 int main()
 {
+	bool IsMoveSuccessful, Quit=false;
 	GameGrid game = GameGrid();
 	cout << "Game Started"<<endl;
 	cout << "Use wasd to move" <<endl;
 	game.GetValues();
 	do
 	{
-		Move(&game);
+		IsMoveSuccessful = TryToMove(&game,&Quit);
+		if (Quit) break;
 		
-		game.GetValues();
+		if (IsMoveSuccessful)
+			game.GetValues();
 
 	} while (!game.HasWon);
+	
+	if (Quit)
+		cout << "Quitting";
+	else if (game.HasWon)
+		cout << "You have won the game.";
+	else 
+		cout << "You have lost the game.";
+	
+
+	return 0;
 }
-void Move(GameGrid *game)
+bool TryToMove(GameGrid *Game,bool* QuitTheGame)
 {
 	char key;
 	cin >> key;
@@ -24,22 +39,26 @@ void Move(GameGrid *game)
 	{
 	case 'w':
 	case 'W':
-		game->MoveUp();
-		break;
+		Game->MoveUp();
+		return true;
 	case 'a':
 	case 'A':
-		game->MoveLeft();
-		break;
+		Game->MoveLeft();
+		return true;
 	case 's':
 	case 'S':
-		game->MoveDown();
-		break;
+		Game->MoveDown();
+		return true;
 	case 'd':
 	case 'D':
-		game->MoveRight();
-		break;
+		Game->MoveRight();
+		return true;
+	case 'q':
+	case 'Q':
+		*QuitTheGame = true;
+		return false;
 	default:
-		cout << "error";
-		break;
+		//cout << "error";
+		return false;
 	}
 }
