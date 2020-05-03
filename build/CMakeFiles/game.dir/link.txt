@@ -1,0 +1,1 @@
+/bin/g++  -g   CMakeFiles/game.dir/2048Game/src/GameGrid.cpp.o CMakeFiles/game.dir/2048Game/src/Main.cpp.o CMakeFiles/game.dir/2048Game/src/Number.cpp.o  -o game 

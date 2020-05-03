@@ -1,0 +1,17 @@
+[
+{
+  "directory": "/home/aiden/repos/2048-Game/build",
+  "command": "/bin/g++   -I/home/aiden/repos/2048-Game/2048Game/include  -g   -o CMakeFiles/game.dir/2048Game/src/GameGrid.cpp.o -c /home/aiden/repos/2048-Game/2048Game/src/GameGrid.cpp",
+  "file": "/home/aiden/repos/2048-Game/2048Game/src/GameGrid.cpp"
+},
+{
+  "directory": "/home/aiden/repos/2048-Game/build",
+  "command": "/bin/g++   -I/home/aiden/repos/2048-Game/2048Game/include  -g   -o CMakeFiles/game.dir/2048Game/src/Main.cpp.o -c /home/aiden/repos/2048-Game/2048Game/src/Main.cpp",
+  "file": "/home/aiden/repos/2048-Game/2048Game/src/Main.cpp"
+},
+{
+  "directory": "/home/aiden/repos/2048-Game/build",
+  "command": "/bin/g++   -I/home/aiden/repos/2048-Game/2048Game/include  -g   -o CMakeFiles/game.dir/2048Game/src/Number.cpp.o -c /home/aiden/repos/2048-Game/2048Game/src/Number.cpp",
+  "file": "/home/aiden/repos/2048-Game/2048Game/src/Number.cpp"
+}
+]
