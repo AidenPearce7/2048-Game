@@ -1,3 +1,0 @@
-/home/aiden/repos/2048-Game/build/CMakeFiles/rebuild_cache.dir
-/home/aiden/repos/2048-Game/build/CMakeFiles/game.dir
-/home/aiden/repos/2048-Game/build/CMakeFiles/edit_cache.dir
