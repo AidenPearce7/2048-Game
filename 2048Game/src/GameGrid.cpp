@@ -1,188 +1,71 @@
 #include "GameGrid.h"
+#include <chrono>
+#include <iostream>
+#include <iterator>
+#include <random>
+#include <vector>
 
-bool GameGrid::IsVerticalMovementPossible(){
-	//Let's go through the whole board
-	for (size_t boardIndex = 0; boardIndex < Height*Width; boardIndex++)
-	{
-		int numberToCheck = this->GameBoard.at(boardIndex).GetNumber();
-		//if there is a 0 on the board movement is possible.
-		if (numberToCheck==0) return true;
-		else{
-			if (IsLowerCellTheSame(boardIndex,numberToCheck)) return true;
-		}
-	}
-	return false; //There are no 0's and no numbers in column cells are the same. Movement Up Is not possible
+GameGrid::GameGrid() {
+    Dimention = 4;
+    this->GameBoard.resize(Dimention * Dimention);
+    this->MaxNumber = 2048;
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    generator = std::default_random_engine(seed);
+    newNumberDistribuion = std::uniform_int_distribution<int>(0, 1);
+    StartGame();
 }
-bool GameGrid::IsLowerCellTheSame(size_t index,int numberToCheck){
-	//Since we are trying to access a lower cell that might not exist we're using a try catch
-	try{
-		int numberOnLowerRow = this->GameBoard.at(index+Width).GetNumber();
-		if (numberOnLowerRow==numberToCheck) return true; // Since there are the same number movement is possible.
-	}
-	catch (std::out_of_range){} // this is expected.
+GameGrid::GameGrid(unsigned short dimentions, unsigned int MaxNumber) {
+    this->Dimention = dimentions;
+    this->MaxNumber = MaxNumber;
+    this->GameBoard.resize(dimentions * dimentions);
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    generator = std::default_random_engine(seed);
+    newNumberDistribuion = std::uniform_int_distribution<int>(0, 1);
+    StartGame();
 }
-bool GameGrid::IsHorizontalMovementPossible(){
-	for (size_t boardIndex = 0; boardIndex < Height*Width; boardIndex++)
-	{
-		int numberToCheck = this->GameBoard.at(boardIndex).GetNumber();
-		//if there is a 0 on the board movement is possible.
-		if (numberToCheck==0) return true;
-		else{
-			if (IsRightCellTheSame(boardIndex,numberToCheck)) return true;
-		}
-	}
-	return false;
-}
-bool GameGrid::IsRightCellTheSame(size_t index,int numberToCheck){
-	if (index%Width==0) return false; //if index is diviable by width we are at a boundary, so no right cell exist.
-	int numberOnRightColumn = this->GameBoard.at(index+1).GetNumber();
-	if (numberToCheck == numberOnRightColumn)
-	{
-		return true;
-	}
-	return false;
-}
+void GameGrid::GetValues() {
 
-//move the board up.
-//Returns false when movement is not possible and has not happened.
-bool GameGrid::MoveUp()
-{
-	if (!IsVerticalMovementPossible()) return false;
-	for (size_t index = 0; index < Height*Width; index++)
-	{
-		try {
-		Number Main = this->GameBoard.at(index);
-		Number NextNumber = this->GameBoard.at(index+Width);
-		Main.Join(NextNumber);
-		}
-		catch (std::out_of_range){}//expected.
-	}
-	return true;
-	CheckForMaxNumber();
-	SpawnNewNumber();
+    unsigned short y = 0;
+    for (auto const &i : GameBoard) {
+        std::cout << i << "\t";
+        y++;
+        if (y == this->Dimention) {
+            y = 0;
+            std::cout << std::endl;
+        }
+    }
 }
+void GameGrid::StartGame() {
+    for (size_t i = 0; i < 3; i++) {
+        SpawnNewNumber();
+    }
+}
+void GameGrid::SpawnNewNumber() {
+    availableSpaces.clear();
+    for (int i = 0; i < GameBoard.size(); ++i) {
+        if (GameBoard[i] == 0) {
+            availableSpaces.push_front(i);
+        }
+    }
+    auto distance =
+        std::distance(availableSpaces.begin(), availableSpaces.end()) - 1;
+    fieldDistribution = std::uniform_int_distribution<int>(0, distance - 1);
+    unsigned int value;
+    if (newNumberDistribuion(generator) == 0)
+        value = 2;
+    else
+        value = 4;
+    int offset = fieldDistribution(generator);
+    if (offset < 0 || offset > distance) {
+        offset = availableSpaces.front();
+    } else {
+        std::forward_list<int>::const_iterator it = availableSpaces.cbegin();
 
-bool GameGrid::MoveDown()
-{
-	if (!IsVerticalMovementPossible()) return false;
-	for (size_t index = Height*Width-1; index >= 0; index--)
-	{
-		try {
-		Number Main = this->GameBoard.at(index);
-		Number NextNumber = this->GameBoard.at(index-Width);
-		Main.Join(NextNumber);
-		}
-		catch (std::out_of_range){}//expected.
-	}
-	return true;
-	CheckForMaxNumber();
-	SpawnNewNumber();
-}
+        for (int i = 0; i < offset; i++) {
+            it++;
+        }
+        offset = *it;
+    }
 
-bool GameGrid::MoveRight()
-{
-	if (!IsHorizontalMovementPossible()) return false;
-	for (size_t index = 0; index < Width*Height; index++)
-	{
-		if (index+1%4==0) continue; //if we are at the border we cannot join.
-		Number Main = this->GameBoard.at(index);
-		Number NextNumber = this->GameBoard.at(index+1);
-		Main.Join(NextNumber);
-	}
-	CheckForMaxNumber();
-	SpawnNewNumber();
-	return true;
-}
-
-bool GameGrid::MoveLeft()
-{
-	
-	if (!IsHorizontalMovementPossible()) return false;
-	for (size_t index = Width*Height-1; index >= 0; index--)
-	{
-		if (index%4==0) continue; // if we are at the border we cannot join.
-		Number Main = this->GameBoard.at(index);
-		Number NextNumber = this->GameBoard.at(index-1);
-		Main.Join(NextNumber);
-	}
-	CheckForMaxNumber();
-	SpawnNewNumber();
-	return true;
-}
-//Default 4x4 game setting.
-GameGrid::GameGrid()
-{
-	Height = 4;
-	Width = 4;
-	this->GameBoard.resize(Height * Width);
-	this->HasWon = false;
-	this->MaxNumber = 2048;
-	StartGame();
-}
-//Create new game
-GameGrid::GameGrid(unsigned short Height, unsigned short Width, size_t MaxNumber)
-{
-	this->Height = Height;
-	this->Width = Width;
-	this->MaxNumber = MaxNumber;
-	this->GameBoard.resize(Height * Width);
-	this->HasWon = false;
-	StartGame();
-}
-
-//displays numbers in the console
-void GameGrid::GetValues()
-{
-	unsigned short y = 0;
-	for (auto& i : GameBoard)
-	{
-		std::cout << i.GetNumber() << '\t';
-		y++;
-		if (y == Width)
-		{
-			y = 0;
-			std::cout << std::endl;
-		}
-	}
-
-}
-//generates 3 numbers
-void GameGrid::StartGame()
-{
-	for (size_t i = 0; i < 3; i++)
-	{
-		SpawnNewNumber();
-	}
-}
-
-void GameGrid::CheckForMaxNumber()
-{
-	std::vector<Number>::iterator iterator;
-	iterator = std::find(GameBoard.begin(), GameBoard.end(), MaxNumber);
-	std::for_each(GameBoard.begin(),GameBoard.end(),&Reset);
-	if (iterator != GameBoard.end())
-	{
-		this->HasWon = true;
-	}
-}
-static void Reset(Number number){
-	number.ResetTurn();
-}
-void GameGrid::SpawnNewNumber()
-{
-	bool isValue = true;
-	size_t tmp = 0;
-	do
-	{
-		tmp = std::rand() % (Height * Width);
-		if (GameBoard.at(tmp).GetNumber() == 0) isValue = false;
-	} while (isValue);
-	if (std::rand() % 2 == 0)
-	{
-		GameBoard.at(tmp).SetNumber(2);
-	}
-	else
-	{
-		GameBoard.at(tmp).SetNumber(4);
-	}
+    GameBoard[offset] = value;
 }
