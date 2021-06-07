@@ -1,5 +1,5 @@
 # 2048-Game
-a console clone of (2048)[https://github.com/gabrielecirulli/2048] made in c++
+a console clone of [2048](https://github.com/gabrielecirulli/2048) made in c++
 
 
 
